@@ -40,13 +40,21 @@ async function run() {
             const users = await usersCollection.find().toArray();
             res.send(users);
         });
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const decodedUser = req.decoded.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        });
 
-        app.put('/user/admin/:email', async (req, res) => {
+        app.put('/user/admin/:email', verifyJwt, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
             const updateDoc = {
                 $set: {
-                    plot: { role: 'admin' },
+                    role: 'admin',
                 },
             }
             const result = await usersCollection.updateOne(filter, updateDoc);
@@ -59,7 +67,7 @@ async function run() {
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
-                    plot: user,
+                    user
                 },
             }
             const result = await usersCollection.updateOne(filter, updateDoc, options);
