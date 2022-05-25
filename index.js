@@ -20,6 +20,7 @@ async function run() {
         await client.connect();
         const toolsCollection = client.db("toolsCollection").collection("tools");
         const usersCollection = client.db("toolsCollection").collection("user");
+        const ordersCollection = client.db("toolsCollection").collection("orders");
 
         function verifyJwt(req, res, next) {
             const authHeader = req.headers.authorization;
@@ -47,6 +48,17 @@ async function run() {
                 payment_method_types: ['card']
             });
             res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+        app.post('/orders', async (req, res) => {
+            const orders = req.body;
+            const doc = {
+                orders
+            }
+            const result = await ordersCollection.insertOne(doc);
+            res.send(result);
+
+
         })
 
         app.get('/user', async (req, res) => {
