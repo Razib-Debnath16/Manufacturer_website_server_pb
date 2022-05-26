@@ -21,6 +21,7 @@ async function run() {
         const toolsCollection = client.db("toolsCollection").collection("tools");
         const usersCollection = client.db("toolsCollection").collection("user");
         const ordersCollection = client.db("toolsCollection").collection("orders");
+        const paymentCollection = client.db("toolsCollection").collection("payment");
 
         function verifyJwt(req, res, next) {
             const authHeader = req.headers.authorization;
@@ -42,12 +43,19 @@ async function run() {
             const service = req.body;
             const price = service.price;
             const amount = price * 100;
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: amount,
-                currency: 'usd',
-                payment_method_types: ['card']
-            });
-            res.send({ clientSecret: paymentIntent.client_secret })
+            try {
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount: amount,
+                    currency: 'usd',
+                    payment_method_types: ["card"]
+                });
+                res.json({
+                    clientSecret: paymentIntent.client_secret,
+                });
+            }
+            catch (e) {
+                res.status(400).json({ error: { message: e.message } });
+            }
         });
 
         app.post('/orders', async (req, res) => {
@@ -64,6 +72,27 @@ async function run() {
             res.send(result);
 
 
+        });
+        app.patch('/orders/:id', async (req, res) => {
+
+            const id = req.params.id;
+            const partsId = req.body.partsId;
+            const transactionId = req.body.transactionId;
+            const payment = {
+                partsId,
+                transactionId
+            }
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    status: 'pending',
+                    transactionId: transactionId
+                }
+            }
+            const updatedOrders = await ordersCollection.updateOne(query, updatedDoc);
+            const paymentUpdate = await paymentCollection.insertOne(payment);
+            res.send(updatedDoc);
         })
 
         app.get('/user', async (req, res) => {
