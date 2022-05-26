@@ -22,6 +22,7 @@ async function run() {
         const usersCollection = client.db("toolsCollection").collection("user");
         const ordersCollection = client.db("toolsCollection").collection("orders");
         const paymentCollection = client.db("toolsCollection").collection("payment");
+        const reviewsCollection = client.db("toolsCollection").collection("reviews");
 
         function verifyJwt(req, res, next) {
             const authHeader = req.headers.authorization;
@@ -70,8 +71,22 @@ async function run() {
             }
             const result = await ordersCollection.insertOne(doc);
             res.send(result);
-
-
+        });
+        app.post('/reviews', async (req, res) => {
+            const data = req.body;
+            const doc = {
+                name: data.name,
+                email: data.email,
+                img: data.img,
+                review: data.review
+            }
+            const result = await reviewsCollection.insertOne(doc);
+            res.send(result);
+        });
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const result = await reviewsCollection.find(query).toArray();
+            res.send(result);
         });
         app.patch('/orders/:id', async (req, res) => {
 
