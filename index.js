@@ -83,6 +83,20 @@ async function run() {
             const result = await reviewsCollection.insertOne(doc);
             res.send(result);
         });
+        app.post('/tools', async (req, res) => {
+            const data = req.body;
+            const doc = {
+                name: data.name,
+                img: data.img,
+                des: data.des,
+                quantity: data.quantity,
+                stock: data.stock,
+                price: data.price,
+                email: data.email
+            }
+            const result = await toolsCollection.insertOne(doc);
+            res.send(result);
+        });
         app.get('/reviews', async (req, res) => {
             const query = {};
             const result = await reviewsCollection.find(query).toArray();
