@@ -51,9 +51,14 @@ async function run() {
         });
 
         app.post('/orders', async (req, res) => {
-            const orders = req.body;
+            const data = req.body;
             const doc = {
-                orders
+                name: data.name,
+                email: data.email,
+                quantity: data.quantity,
+                address: data.address,
+                phone: data.phone,
+                price: data.price
             }
             const result = await ordersCollection.insertOne(doc);
             res.send(result);
@@ -64,6 +69,18 @@ async function run() {
         app.get('/user', async (req, res) => {
 
             const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
+        app.get('/orders/email', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const users = await ordersCollection.find(query).toArray();
+            res.send(users);
+        });
+        app.get('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const users = await ordersCollection.find(query).toArray();
             res.send(users);
         });
         app.get('/admin/:email', verifyJwt, async (req, res) => {
@@ -106,11 +123,22 @@ async function run() {
             const tools = await toolsCollection.find(query).toArray();
             res.send(tools);
         })
-        app.get('/tools/:id', verifyJwt, async (req, res) => {
+        app.get('/tools/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const tool = await toolsCollection.findOne(query);
             res.send(tool);
+        })
+        app.put('/tools/:id', async (req, res) => {
+            const id = req.params.id;
+            const newStock = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                stock: newStock
+            }
+            const tool = await toolsCollection.updateOne(filter, updateDoc, options);
+            res.send(newStock);
         })
         app.get('/', (req, res) => {
             res.send('hello');
