@@ -123,7 +123,7 @@ async function run() {
             const paymentUpdate = await paymentCollection.insertOne(payment);
             res.send(updatedDoc);
         })
-        app.put('/orders/id:', async (req, res) => {
+        app.put('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const updatedDoc = {
@@ -132,7 +132,20 @@ async function run() {
                 }
             }
             const updatedOrder = await ordersCollection.updateOne(query, updatedDoc);
-            res.send(updatedDoc);
+            res.send(updatedOrder);
+        })
+
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    status: 'Canceled',
+                }
+            }
+            const updatedOrders = await ordersCollection.updateOne(query, updatedDoc);
+            res.send(updatedOrders);
+
         })
 
         app.get('/user', async (req, res) => {
