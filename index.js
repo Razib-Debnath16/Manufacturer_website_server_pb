@@ -123,10 +123,26 @@ async function run() {
             const paymentUpdate = await paymentCollection.insertOne(payment);
             res.send(updatedDoc);
         })
+        app.put('/orders/id:', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    status: 'Shipped',
+                }
+            }
+            const updatedOrder = await ordersCollection.updateOne(query, updatedDoc);
+            res.send(updatedDoc);
+        })
 
         app.get('/user', async (req, res) => {
 
             const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
+        app.get('/orders', async (req, res) => {
+            const query = {};
+            const users = await ordersCollection.find(query).toArray();
             res.send(users);
         });
         app.get('/orders/email', async (req, res) => {
@@ -135,11 +151,23 @@ async function run() {
             const users = await ordersCollection.find(query).toArray();
             res.send(users);
         });
+        app.get('/user/email', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await usersCollection.find(query).toArray();
+            res.send({ user });
+        });
         app.get('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const users = await ordersCollection.find(query).toArray();
             res.send(users);
+        });
+        app.delete('/tools/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toolsCollection.deleteOne(query);
+            res.send(result);
         });
         app.get('/admin/:email', verifyJwt, async (req, res) => {
             const email = req.params.email;
