@@ -23,6 +23,7 @@ async function run() {
         const ordersCollection = client.db("toolsCollection").collection("orders");
         const paymentCollection = client.db("toolsCollection").collection("payment");
         const reviewsCollection = client.db("toolsCollection").collection("reviews");
+        const profilesCollection = client.db("toolsCollection").collection("profile");
 
         function verifyJwt(req, res, next) {
             const authHeader = req.headers.authorization;
@@ -95,6 +96,18 @@ async function run() {
                 email: data.email
             }
             const result = await toolsCollection.insertOne(doc);
+            res.send(result);
+        });
+        app.post('/profile', async (req, res) => {
+            const data = req.body;
+            const doc = {
+                name: data.name,
+                email: data.email,
+                edu: data.education,
+                loc: data.location,
+                linkedin: data.linkedin
+            }
+            const result = await profilesCollection.insertOne(doc);
             res.send(result);
         });
         app.get('/reviews', async (req, res) => {
