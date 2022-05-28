@@ -258,9 +258,7 @@ async function run() {
             const tool = await toolsCollection.updateOne(filter, updateDoc, options);
             res.send(newStock);
         })
-        app.get('/', (req, res) => {
-            res.send('hello world');
-        })
+
 
 
     }
@@ -268,9 +266,12 @@ async function run() {
         // await client.close();
     }
 }
+app.get('/', (req, res) => {
+    res.send('hello world');
+})
 run().catch(console.dir);
-
-
 app.listen(port, () => {
     console.log(`port: ${port}`)
 })
+
+
