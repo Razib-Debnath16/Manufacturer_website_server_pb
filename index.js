@@ -259,7 +259,7 @@ async function run() {
             res.send(newStock);
         })
         app.get('/', (req, res) => {
-            res.send('hello');
+            res.send('hello world');
         })
 
 
